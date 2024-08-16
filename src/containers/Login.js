@@ -32,42 +32,41 @@ export default class Login {
         this.onNavigate(ROUTES_PATH['Bills'])
         this.PREVIOUS_LOCATION = ROUTES_PATH['Bills']
         PREVIOUS_LOCATION = this.PREVIOUS_LOCATION
-        this.document.body.style.backgroundColor="#fff"
+        this.document.body.style.backgroundColor = "#fff"
       })
 
   }
 
-  handleSubmitAdmin = e => {
-    e.preventDefault()
+  /*Fix Bug 2*/
+  handleSubmitAdmin = (e) => {
+    e.preventDefault();
     const user = {
       type: "Admin",
-      email: e.target.querySelector(`input[data-testid="employee-email-input"]`).value,
-      password: e.target.querySelector(`input[data-testid="employee-password-input"]`).value,
-      status: "connected"
-    }
-    this.localStorage.setItem("user", JSON.stringify(user))
+      email: e.target.querySelector(`input[data-testid="admin-email-input"]`).value,
+      password: e.target.querySelector(`input[data-testid="admin-password-input"]`).value,
+      status: "connected",
+    };
+    this.localStorage.setItem("user", JSON.stringify(user));
     this.login(user)
-      .catch(
-        (err) => this.createUser(user)
-      )
+      .catch((err) => this.createUser(user))
       .then(() => {
-        this.onNavigate(ROUTES_PATH['Dashboard'])
-        this.PREVIOUS_LOCATION = ROUTES_PATH['Dashboard']
-        PREVIOUS_LOCATION = this.PREVIOUS_LOCATION
-        document.body.style.backgroundColor="#fff"
-      })
-  }
+        this.onNavigate(ROUTES_PATH["Dashboard"]);
+        this.PREVIOUS_LOCATION = ROUTES_PATH["Dashboard"];
+        PREVIOUS_LOCATION = this.PREVIOUS_LOCATION;
+        document.body.style.backgroundColor = "#fff";
+      });
+  };
 
   // not need to cover this function by tests
   login = (user) => {
     if (this.store) {
       return this.store
-      .login(JSON.stringify({
-        email: user.email,
-        password: user.password,
-      })).then(({jwt}) => {
-        localStorage.setItem('jwt', jwt)
-      })
+        .login(JSON.stringify({
+          email: user.email,
+          password: user.password,
+        })).then(({ jwt }) => {
+          localStorage.setItem('jwt', jwt)
+        })
     } else {
       return null
     }
@@ -77,17 +76,19 @@ export default class Login {
   createUser = (user) => {
     if (this.store) {
       return this.store
-      .users()
-      .create({data:JSON.stringify({
-        type: user.type,
-        name: user.email.split('@')[0],
-        email: user.email,
-        password: user.password,
-      })})
-      .then(() => {
-        console.log(`User with ${user.email} is created`)
-        return this.login(user)
-      })
+        .users()
+        .create({
+          data: JSON.stringify({
+            type: user.type,
+            name: user.email.split('@')[0],
+            email: user.email,
+            password: user.password,
+          })
+        })
+        .then(() => {
+          console.log(`User with ${user.email} is created`)
+          return this.login(user)
+        })
     } else {
       return null
     }

@@ -19,6 +19,7 @@ const row = (bill) => {
     `)
 }
 
+/*Fix Bug 1*/
 const rows = (data) => {
   return data && data.length ? data
     .sort((a, b) => new Date(b.date) - new Date(a.date))
