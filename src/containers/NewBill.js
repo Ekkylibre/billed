@@ -23,7 +23,7 @@ export default class NewBill {
     const filePath = e.target.value.split(/\\/g);
     const fileName = filePath[filePath.length - 1];
 
-    // Vérification du format de fichier
+    /*Fix bug 3*/
     if (file && fileName.match(/\.(jpg|jpeg|png)$/)) {
       const formData = new FormData();
       const email = JSON.parse(localStorage.getItem("user")).email;
