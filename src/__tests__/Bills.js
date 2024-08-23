@@ -99,6 +99,19 @@ describe("Given I am connected as an employee", () => {
   });
 
   // Intégration
+  describe("When I am on Bills Page", () => {
+    test("fetches bills from mock API GET", async () => {
+      localStorage.setItem("user", JSON.stringify({ type: "Employee", email: "e@e" }));
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.append(root);
+      router();
+      window.onNavigate(ROUTES_PATH.Bills);
+      await waitFor(() => screen.getByText("Mes notes de frais"));
+      expect(screen.getByTestId("tbody")).toBeTruthy();
+    });
+  });
+
   describe("When an error occurs on API", () => {
     beforeEach(() => {
       jest.spyOn(mockStore, "bills");
