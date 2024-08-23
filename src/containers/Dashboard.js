@@ -5,6 +5,7 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import USERS_TEST from "../constants/usersTest.js";
 import Logout from "./Logout.js";
 
+/*Fix bug 4*/
 export const filteredBills = (data, status) => {
   return data && data.length
     ? data.filter(bill => {
