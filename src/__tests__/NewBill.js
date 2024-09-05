@@ -30,6 +30,13 @@ describe("Given I am connected as an employee", () => {
       expect(screen.getByTestId("form-new-bill")).toBeTruthy();
     });
     
+    test("Then the content title should be displayed", () => {
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      // Verify that the content title is rendered
+      expect(screen.getByText("Envoyer une note de frais")).toBeTruthy();
+    });
 
     test("Then a file with the wrong format should trigger an alert", () => {
       const onNavigate = (pathname) => {
@@ -117,6 +124,7 @@ describe("Given I am connected as an employee", () => {
       expect(fileInput.files[0].name).toBe("image.jpg");
     });
 
+    // Intégration POST
     test("Then submitting the form with valid data should navigate to Bills page", () => {
       const onNavigate = jest.fn();
       const storeMock = {
