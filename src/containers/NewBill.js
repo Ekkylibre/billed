@@ -27,7 +27,6 @@ export default class NewBill {
     if (file && fileName.match(/\.(jpg|jpeg|png)$/)) {
       const formData = new FormData();
       const email = JSON.parse(localStorage.getItem("user")).email;
-      console.log(email);
       formData.append("file", file);
       formData.append("email", email);
 
@@ -40,7 +39,6 @@ export default class NewBill {
           },
         })
         .then(({ fileUrl, key }) => {
-          console.log(fileUrl);
           this.billId = key;
           this.fileUrl = fileUrl;
           this.fileName = fileName;

@@ -61,7 +61,8 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage,
       });
 
-      const handleChangeFile = jest.fn(newBill.handleChangeFile);
+      // Spy on handleChangeFile method
+      const handleChangeFile = jest.fn(newBill.handleChangeFile.bind(newBill));
       const fileInput = screen.getByTestId("file");
 
       jest.spyOn(window, 'alert').mockImplementation(() => { });
@@ -106,7 +107,8 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage,
       });
 
-      const handleChangeFile = jest.fn(newBill.handleChangeFile);
+      // Spy on handleChangeFile method
+      const handleChangeFile = jest.fn(newBill.handleChangeFile.bind(newBill));
       const fileInput = screen.getByTestId("file");
 
       const file = new File(["image content"], "image.jpg", {
@@ -209,7 +211,6 @@ describe("Given I am connected as an employee", () => {
       // Assurez-vous que onNavigate a été appelé avec la bonne valeur
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
     });
-
 
   });
 });
