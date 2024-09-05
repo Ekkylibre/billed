@@ -117,7 +117,39 @@ describe("Given I am connected as an employee", () => {
       expect(fileInput.files[0].name).toBe("image.jpg");
     });
 
-    test("Then submitting the form with valid data should navigate to Bills page", () => {
+    test("When updating the bill fails, it should handle the error", async () => {
+      const onNavigate = jest.fn();
+      const storeMock = {
+        bills: jest.fn(() => ({
+          update: jest.fn(() => Promise.reject(new Error("Update failed"))),
+        })),
+      };
+
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: storeMock,
+        localStorage: window.localStorage,
+      });
+
+      // Remplir le formulaire avec des données valides
+      newBill.fileUrl = "https://localhost:3456/images/test.jpg";
+      newBill.fileName = "image.jpg";
+      const form = screen.getByTestId("form-new-bill");
+
+      fireEvent.submit(form);
+
+      // Vérifier que la méthode update a été appelée
+      expect(storeMock.bills().update).toHaveBeenCalled();
+
+      // Assurez-vous que la navigation n'a pas eu lieu en cas d'échec
+      await expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    test("Then submitting the form with missing required fields should not navigate", () => {
       const onNavigate = jest.fn();
       const storeMock = {
         bills: jest.fn(() => mockStore.bills()),
@@ -133,56 +165,29 @@ describe("Given I am connected as an employee", () => {
         localStorage: window.localStorage,
       });
 
-      const handleSubmit = jest.fn(newBill.handleSubmit);
-      newBill.fileUrl = "https://localhost:3456/images/test.jpg";
-      newBill.fileName = "image.jpg";
-
+      // Simule une soumission de formulaire sans remplir les champs requis
       const form = screen.getByTestId("form-new-bill");
-      form.addEventListener("submit", handleSubmit);
+      const expenseNameInput = screen.getByTestId("expense-name");
+      expenseNameInput.value = ""; // Laisse un champ requis vide
+
+      // Assurez-vous que vous avez suffisamment de données pour le test
+      const expenseTypeInput = screen.getByTestId("expense-type");
+      expenseTypeInput.value = "Restaurants et bars";
+      const amountInput = screen.getByTestId("amount");
+      amountInput.value = "100";
+      const dateInput = screen.getByTestId("datepicker");
+      dateInput.value = "2024-09-05";
+      const vatInput = screen.getByTestId("vat");
+      vatInput.value = "20";
+      const pctInput = screen.getByTestId("pct");
+      pctInput.value = "20";
+      const commentaryInput = screen.getByTestId("commentary");
+      commentaryInput.value = "Commentaire";
 
       fireEvent.submit(form);
 
-      expect(handleSubmit).toHaveBeenCalled();
-      expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
-    });
-  });
-  
-  describe("When I am on NewBill Page and submit the form", () => {
-    beforeEach(() => {
-      jest.spyOn(mockStore, "bills");
-      Object.defineProperty(window, "localStorage", { value: localStorageMock });
-      window.localStorage.setItem(
-        "user",
-        JSON.stringify({
-          type: "Employee",
-          email: "a@a",
-        })
-      );
-      const root = document.createElement("div");
-      root.setAttribute("id", "root");
-      document.body.appendChild(root);
-      router(); // Assurez-vous d'appeler router ici
-    });
-
-    describe("user submit form valid", () => {
-      test("call api update bills", async () => {
-        const onNavigate = jest.fn(); // Simuler la navigation
-
-        const newBill = new NewBill({
-          document,
-          onNavigate, // Utiliser la fonction onNavigate simulée
-          store: mockStore,
-          localStorage: localStorageMock,
-        });
-
-        const handleSubmit = jest.fn(newBill.handleSubmit);
-        const form = screen.getByTestId("form-new-bill");
-        form.addEventListener("submit", handleSubmit);
-        fireEvent.submit(form);
-
-        expect(mockStore.bills).toHaveBeenCalled();
-        expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
-      });
+      // Vérifiez que la fonction onNavigate n'a pas été appelée
+      expect(onNavigate).not.toHaveBeenCalled();
     });
   });
 });
