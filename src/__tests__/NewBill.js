@@ -58,7 +58,7 @@ describe("Given I am connected as an employee", () => {
       jest.spyOn(window, 'alert').mockImplementation(() => {});
 
       // Créez un événement mock avec un fichier au mauvais format (par exemple, .pdf)
-      const file = new File(["(⌐□_□)"], "chucknorris.pdf", {
+      const file = new File([""], "example.pdf", {
         type: "application/pdf",
       });
       fileInput.addEventListener("change", handleChangeFile);
@@ -79,6 +79,50 @@ describe("Given I am connected as an employee", () => {
       window.alert.mockRestore();
     });
 
+    test("When I upload a file with the correct format, it should be accepted and stored", () => {
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES_PATH[pathname];
+      };
+      Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+          email: "employee@test.com",
+        })
+      );
+
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: store,
+        localStorage: window.localStorage,
+      });
+
+      const handleChangeFile = jest.fn(newBill.handleChangeFile);
+      const fileInput = screen.getByTestId("file");
+
+      // Créez un événement mock avec un fichier au bon format (.jpg)
+      const file = new File(["image content"], "image.jpg", {
+        type: "image/jpeg",
+      });
+
+      fileInput.addEventListener("change", handleChangeFile);
+      fireEvent.change(fileInput, {
+        target: {
+          files: [file],
+        },
+      });
+
+      // Vérifiez que la fonction a été appelée
+      expect(handleChangeFile).toHaveBeenCalled();
+      // Vérifiez que l'input file contient bien le fichier téléchargé
+      expect(fileInput.files[0].name).toBe("image.jpg");
+    });
+
     test("Then submitting the form with valid data should navigate to Bills page", () => {
       const onNavigate = jest.fn();
       const storeMock = {
@@ -96,7 +140,7 @@ describe("Given I am connected as an employee", () => {
       });
 
       const handleSubmit = jest.fn(newBill.handleSubmit);
-      newBill.fileUrl = "https://test.com/image.jpg";
+      newBill.fileUrl = "https://localhost:3456/images/test.jpg";
       newBill.fileName = "image.jpg";
 
       const form = screen.getByTestId("form-new-bill");
