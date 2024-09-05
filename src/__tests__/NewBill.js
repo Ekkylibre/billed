@@ -7,7 +7,10 @@ import NewBillUI from "../views/NewBillUI.js";
 import NewBill from "../containers/NewBill.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import { ROUTES_PATH } from "../constants/routes.js";
-import store from "../__mocks__/store.js";
+import mockStore from "../__mocks__/store.js";
+import router from "../app/Router"; // Importer router
+
+jest.mock("../app/Store", () => mockStore);
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -47,17 +50,15 @@ describe("Given I am connected as an employee", () => {
       const newBill = new NewBill({
         document,
         onNavigate,
-        store: store,
+        store: mockStore,
         localStorage: window.localStorage,
       });
 
       const handleChangeFile = jest.fn(newBill.handleChangeFile);
       const fileInput = screen.getByTestId("file");
 
-      // Espionner window.alert
       jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-      // Créez un événement mock avec un fichier au mauvais format (par exemple, .pdf)
       const file = new File([""], "example.pdf", {
         type: "application/pdf",
       });
@@ -68,14 +69,10 @@ describe("Given I am connected as an employee", () => {
         },
       });
 
-      // Vérifiez que la fonction a été appelée
       expect(handleChangeFile).toHaveBeenCalled();
-      // Vérifiez que l'alerte a été appelée avec le bon message
       expect(window.alert).toHaveBeenCalledWith("Veuillez choisir un type d'image valide. Les formats acceptés sont : .jpg, .jpeg, .png.");
-      // Vérifiez que l'input file a été réinitialisé
       expect(fileInput.value).toBe("");
 
-      // Nettoyez le mock après le test
       window.alert.mockRestore();
     });
 
@@ -98,14 +95,13 @@ describe("Given I am connected as an employee", () => {
       const newBill = new NewBill({
         document,
         onNavigate,
-        store: store,
+        store: mockStore,
         localStorage: window.localStorage,
       });
 
       const handleChangeFile = jest.fn(newBill.handleChangeFile);
       const fileInput = screen.getByTestId("file");
 
-      // Créez un événement mock avec un fichier au bon format (.jpg)
       const file = new File(["image content"], "image.jpg", {
         type: "image/jpeg",
       });
@@ -117,16 +113,14 @@ describe("Given I am connected as an employee", () => {
         },
       });
 
-      // Vérifiez que la fonction a été appelée
       expect(handleChangeFile).toHaveBeenCalled();
-      // Vérifiez que l'input file contient bien le fichier téléchargé
       expect(fileInput.files[0].name).toBe("image.jpg");
     });
 
     test("Then submitting the form with valid data should navigate to Bills page", () => {
       const onNavigate = jest.fn();
       const storeMock = {
-        bills: jest.fn(() => store.bills()),
+        bills: jest.fn(() => mockStore.bills()),
       };
 
       const html = NewBillUI();
@@ -150,6 +144,45 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
+    });
+  });
+  
+  describe("When I am on NewBill Page and submit the form", () => {
+    beforeEach(() => {
+      jest.spyOn(mockStore, "bills");
+      Object.defineProperty(window, "localStorage", { value: localStorageMock });
+      window.localStorage.setItem(
+        "user",
+        JSON.stringify({
+          type: "Employee",
+          email: "a@a",
+        })
+      );
+      const root = document.createElement("div");
+      root.setAttribute("id", "root");
+      document.body.appendChild(root);
+      router(); // Assurez-vous d'appeler router ici
+    });
+
+    describe("user submit form valid", () => {
+      test("call api update bills", async () => {
+        const onNavigate = jest.fn(); // Simuler la navigation
+
+        const newBill = new NewBill({
+          document,
+          onNavigate, // Utiliser la fonction onNavigate simulée
+          store: mockStore,
+          localStorage: localStorageMock,
+        });
+
+        const handleSubmit = jest.fn(newBill.handleSubmit);
+        const form = screen.getByTestId("form-new-bill");
+        form.addEventListener("submit", handleSubmit);
+        fireEvent.submit(form);
+
+        expect(mockStore.bills).toHaveBeenCalled();
+        expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
+      });
     });
   });
 });
