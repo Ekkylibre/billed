@@ -16,37 +16,37 @@ export default class NewBill {
     new Logout({ document, localStorage, onNavigate })
   }
 
-  handleChangeFile = (e) => {
+  handleChangeFile = e => {
     e.preventDefault();
-    const fileInput = this.document.querySelector(`input[data-testid="file"]`)
-    const file = fileInput.files[0];
+
+    // Fix a bug 3
+    const file = this.document.querySelector("input[data-testid='file']").files[0];
     const filePath = e.target.value.split(/\\/g);
-    const fileName = filePath[filePath.length - 1];
+    const fileName = filePath[filePath.length-1];
+    const mimeTypes = ["image/jpg", "image/jpeg", "image/png"]; // A list of allowed file types (MIME types)
+    const email = JSON.parse(localStorage.getItem("user")).email;
 
-    /*Fix bug 3*/
-    if (file && fileName.match(/\.(jpg|jpeg|png)$/)) {
-      const formData = new FormData();
-      const email = JSON.parse(localStorage.getItem("user")).email;
-      formData.append("file", file);
-      formData.append("email", email);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("email", email);
 
+    if (mimeTypes.includes(file.type)) {
       this.store
         .bills()
         .create({
           data: formData,
-          headers: {
-            noContentType: true,
-          },
+          headers: { noContentType: true }
         })
         .then(({ fileUrl, key }) => {
+          console.log(fileUrl);
           this.billId = key;
           this.fileUrl = fileUrl;
           this.fileName = fileName;
         })
-        .catch((error) => console.error(error));
+        .catch(error => console.error(error));
     } else {
-      alert("Veuillez choisir un type d'image valide. Les formats acceptés sont : .jpg, .jpeg, .png.");
-      fileInput.value = null
+      alert("Veuillez choisir un type d'image valide. Les formats acceptés sont : .jpg, .jpeg, .png.")
+      e.target.value = "";
     }
   };
 
