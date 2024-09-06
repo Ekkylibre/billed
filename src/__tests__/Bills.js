@@ -37,13 +37,17 @@ describe("Given I am connected as an employee", () => {
     });
 
     // Vérifie le tri par date
-    test("Then bills should be ordered from earliest to latest", () => {
-      // On modifie le test pour qu'ils prennent en compte les bills comment ils sont rangés dans la vue
-      document.body.innerHTML = BillsUI({ data: bills.sort((a, b) => (a.date < b.date ? 1 : -1)) });
-      const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map(a => a.innerHTML);
-      const datesSorted = [...dates].sort((a, b) => (a < b ? 1 : -1));
+    test("Then, bills should be ordered from earliest to latest", () => {
+      document.body.innerHTML = BillsUI({ data: bills });
+
+      const dates = screen.getAllByText(/^(19|20)\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])$/i).map((a) => a.innerHTML);
+      const antiChrono = (a, b) => (a < b ? 1 : -1);
+      const datesSorted = [...dates].sort(antiChrono);
+
       expect(dates).toEqual(datesSorted);
     });
+    
+    
   });
 
   describe("When I click on Nouvelle note de frais", () => {
@@ -54,8 +58,10 @@ describe("Given I am connected as an employee", () => {
       };
       const billsInit = new Bills({ document, onNavigate, store: null, localStorage: window.localStorage });
       document.body.innerHTML = BillsUI({ data: bills });
-      const handleClickNewBill = jest.fn(() => billsInit.handleClickNewBill());
+
       const btnNewBill = screen.getByTestId("btn-new-bill");
+      expect(btnNewBill).toBeTruthy();  // Vérifie que le bouton existe
+      const handleClickNewBill = jest.fn(() => billsInit.handleClickNewBill());
       btnNewBill.addEventListener("click", handleClickNewBill);
       userEvent.click(btnNewBill);
       expect(handleClickNewBill).toHaveBeenCalled();
@@ -72,8 +78,10 @@ describe("Given I am connected as an employee", () => {
       };
       const billsInit = new Bills({ document, onNavigate, store: null, localStorage: window.localStorage });
       document.body.innerHTML = BillsUI({ data: bills });
-      const handleClickIconEye = jest.fn((icon) => billsInit.handleClickIconEye(icon));
+
       const iconEye = screen.getAllByTestId("icon-eye");
+      expect(iconEye.length).toBeGreaterThan(0);  // Vérifie que des icônes existent
+      const handleClickIconEye = jest.fn((icon) => billsInit.handleClickIconEye(icon));
       const modaleFile = document.getElementById("modaleFile");
       $.fn.modal = jest.fn(() => modaleFile.classList.add("show"));
       iconEye.forEach((icon) => {
@@ -93,6 +101,7 @@ describe("Given I am connected as an employee", () => {
       };
       new Bills({ document, onNavigate, store: null, localStorage: window.localStorage });
       document.body.innerHTML = BillsUI({ data: bills });
+
       await waitFor(() => screen.getByText("Mes notes de frais"));
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
     });

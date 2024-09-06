@@ -1,51 +1,37 @@
-import VerticalLayout from './VerticalLayout.js'
-import ErrorPage from "./ErrorPage.js"
-import LoadingPage from "./LoadingPage.js"
+import VerticalLayout from "./VerticalLayout.js";
+import ErrorPage from "./ErrorPage.js";
+import LoadingPage from "./LoadingPage.js";
 
-import Actions from './Actions.js'
+import Actions from "./Actions.js";
 
+/*Fix a bug 1*/
 const row = (bill) => {
-  return (`
-    <tr>
-      <td>${bill.type}</td>
-      <td>${bill.name}</td>
-      <td>${bill.date}</td>
-      <td>${bill.amount} €</td>
-      <td>${bill.status}</td>
+	const billDate = bill.formatedDate ?? bill.date;
+	return `
+    <tr data-testid="bill">
+      <td data-testid="type">${bill.type}</td>
+      <td data-testid="name">${bill.name}</td>
+      <td data-testid="date">${billDate}</td>
+      <td data-testid="amount">${bill.amount} €</td>
+      <td data-testid="status">${bill.status}</td>
       <td>
         ${Actions(bill.fileUrl)}
       </td>
     </tr>
-    `)
-}
-
-/*Fix Bug 1*/
-const parseDate = (dateStr) => {
-  const months = {
-    'Jan.': 0, 'Fév.': 1, 'Mar.': 2, 'Avr.': 3,
-    'Mai': 4, 'Juin': 5, 'Juil.': 6, 'Août': 7,
-    'Sept.': 8, 'Oct.': 9, 'Nov.': 10, 'Déc.': 11
-  };
-  
-  const [day, monthStr, year] = dateStr.split(' ');
-  const month = months[monthStr] !== undefined ? months[monthStr] : -1;
-  const yearFormatted = year.length === 2 ? `20${year}` : year; // Assuming all years are 2000s
-  
-  return new Date(`${yearFormatted}-${month + 1}-${day}`);
+    `;
 };
 
 const rows = (data) => {
-  if (!data || !data.length) return "";
-  
-  const sortedData = data.sort((a, b) => parseDate(b.date) - parseDate(a.date));
-
-  return sortedData.map((bill) => row(bill)).join("");
+	return data && data.length
+		? data
+				.sort((a, b) => (a.date < b.date ? 1 : -1))
+				.map((bill) => row(bill))
+				.join("")
+		: "";
 };
 
-
 export default ({ data: bills, loading, error }) => {
-
-  const modal = () => (`
+	const modal = () => `
     <div class="modal fade" id="modaleFile" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -60,15 +46,15 @@ export default ({ data: bills, loading, error }) => {
         </div>
       </div>
     </div>
-  `)
+  `;
 
-  if (loading) {
-    return LoadingPage()
-  } else if (error) {
-    return ErrorPage(error)
-  }
+	if (loading) {
+		return LoadingPage();
+	} else if (error) {
+		return ErrorPage(error);
+	}
 
-  return (`
+	return `
     <div class='layout'>
       ${VerticalLayout(120)}
       <div class='content'>
@@ -95,6 +81,5 @@ export default ({ data: bills, loading, error }) => {
         </div>
       </div>
       ${modal()}
-    </div>`
-  )
-}
+    </div>`;
+};
