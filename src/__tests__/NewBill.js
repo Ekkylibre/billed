@@ -156,9 +156,6 @@ describe("Given I am connected as an employee", () => {
       consoleErrorSpy.mockRestore();
     });
 
-    
-    
-    
     test("Then billId, fileUrl, and fileName should be correctly assigned", () => {
       document.body.innerHTML = NewBillUI();
     
@@ -182,8 +179,7 @@ describe("Given I am connected as an employee", () => {
       expect(newBill.fileName).toBe("test.jpg");
     });
 
-    //Intégration POST
-
+    // Intégration POST
     test("Then submitting the form with valid data should navigate to Bills page", () => {
       const onNavigate = jest.fn();
       const storeMock = {
@@ -214,6 +210,85 @@ describe("Given I am connected as an employee", () => {
 
       expect(handleSubmit).toHaveBeenCalled();
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['Bills']);
+    });
+
+    // Gestion des erreurs 404 et 500
+    test("Then submitting the form with valid data should handle 404 error", async () => {
+      const postSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+      const storeMock = {
+        bills: jest.fn(() => ({
+          create: jest.fn(() => Promise.reject(new Error("404"))),
+          update: jest.fn(() => Promise.reject(new Error("404"))),
+        })),
+      };
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES_PATH[pathname];
+      };
+
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: storeMock,
+        localStorage: window.localStorage,
+      });
+
+      const handleSubmit = jest.fn(newBill.handleSubmit);
+      newBill.fileUrl = "https://localhost:3456/images/test.jpg";
+      newBill.fileName = "image.jpg";
+
+      const form = screen.getByTestId("form-new-bill");
+      form.addEventListener("submit", handleSubmit);
+
+      fireEvent.submit(form);
+      await waitFor(() => {
+        expect(postSpy).toHaveBeenCalledWith(new Error("404"));
+      });
+
+      postSpy.mockRestore();
+    });
+
+    test("Then submitting the form with valid data should handle 500 error", async () => {
+      const postSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+      const storeMock = {
+        bills: jest.fn(() => ({
+          create: jest.fn(() => Promise.reject(new Error("500"))),
+          update: jest.fn(() => Promise.reject(new Error("500"))),
+        })),
+      };
+
+      const onNavigate = (pathname) => {
+        document.body.innerHTML = ROUTES_PATH[pathname];
+      };
+
+      const html = NewBillUI();
+      document.body.innerHTML = html;
+
+      const newBill = new NewBill({
+        document,
+        onNavigate,
+        store: storeMock,
+        localStorage: window.localStorage,
+      });
+
+      const handleSubmit = jest.fn(newBill.handleSubmit);
+      newBill.fileUrl = "https://localhost:3456/images/test.jpg";
+      newBill.fileName = "image.jpg";
+
+      const form = screen.getByTestId("form-new-bill");
+      form.addEventListener("submit", handleSubmit);
+
+      fireEvent.submit(form);
+      await waitFor(() => {
+        expect(postSpy).toHaveBeenCalledWith(new Error("500"));
+      });
+
+      postSpy.mockRestore();
     });
 
   });
