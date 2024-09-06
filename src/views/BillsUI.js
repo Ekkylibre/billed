@@ -20,13 +20,28 @@ const row = (bill) => {
 }
 
 /*Fix Bug 1*/
-const rows = (data) => {
-  return data && data.length ? data
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .map((bill) => row(bill))
-    .join("")
-    : "";
+const parseDate = (dateStr) => {
+  const months = {
+    'Jan.': 0, 'Fév.': 1, 'Mar.': 2, 'Avr.': 3,
+    'Mai': 4, 'Juin': 5, 'Juil.': 6, 'Août': 7,
+    'Sept.': 8, 'Oct.': 9, 'Nov.': 10, 'Déc.': 11
+  };
+  
+  const [day, monthStr, year] = dateStr.split(' ');
+  const month = months[monthStr] !== undefined ? months[monthStr] : -1;
+  const yearFormatted = year.length === 2 ? `20${year}` : year; // Assuming all years are 2000s
+  
+  return new Date(`${yearFormatted}-${month + 1}-${day}`);
 };
+
+const rows = (data) => {
+  if (!data || !data.length) return "";
+  
+  const sortedData = data.sort((a, b) => parseDate(b.date) - parseDate(a.date));
+
+  return sortedData.map((bill) => row(bill)).join("");
+};
+
 
 export default ({ data: bills, loading, error }) => {
 
