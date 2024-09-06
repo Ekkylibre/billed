@@ -182,6 +182,8 @@ describe("Given I am connected as an employee", () => {
       expect(newBill.fileName).toBe("test.jpg");
     });
 
+    //Intégration POST
+
     test("Then submitting the form with valid data should navigate to Bills page", () => {
       const onNavigate = jest.fn();
       const storeMock = {
