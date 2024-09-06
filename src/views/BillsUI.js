@@ -4,7 +4,7 @@ import LoadingPage from "./LoadingPage.js";
 
 import Actions from "./Actions.js";
 
-/*Fix a bug 1*/
+/*Fix bug 1*/
 const row = (bill) => {
 	const billDate = bill.formatedDate ?? bill.date;
 	return `
