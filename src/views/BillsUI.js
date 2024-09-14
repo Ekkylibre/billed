@@ -4,7 +4,6 @@ import LoadingPage from "./LoadingPage.js";
 
 import Actions from "./Actions.js";
 
-/*Fix bug 1*/
 const row = (bill) => {
 	const billDate = bill.formatedDate ?? bill.date;
 	return `
@@ -21,10 +20,11 @@ const row = (bill) => {
     `;
 };
 
+
 const rows = (data) => {
 	return data && data.length
 		? data
-				.sort((a, b) => (a.date < b.date ? 1 : -1))
+				.sort((a, b) => (a.date < b.date ? 1 : -1)) /*Fix bug 1*/
 				.map((bill) => row(bill))
 				.join("")
 		: "";

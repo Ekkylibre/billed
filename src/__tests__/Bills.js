@@ -46,10 +46,9 @@ describe("Given I am connected as an employee", () => {
 
       expect(dates).toEqual(datesSorted);
     });
-    
-    
   });
 
+  
   describe("When I click on Nouvelle note de frais", () => {
     // Vérifie si le formulaire de création de bills apparait
     test("Then the form to create a new bill appears", async () => {

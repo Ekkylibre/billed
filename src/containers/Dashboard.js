@@ -5,26 +5,25 @@ import { ROUTES_PATH } from "../constants/routes.js";
 import USERS_TEST from "../constants/usersTest.js";
 import Logout from "./Logout.js";
 
-/*Fix bug 4*/
 export const filteredBills = (data, status) => {
-  return data && data.length
-    ? data.filter(bill => {
-        let selectCondition;
+  return data && data.length ?
+    data.filter(bill => {
+      let selectCondition;
 
-        // in jest environment
-        if (typeof jest !== "undefined") {
-          selectCondition = bill.status === status;
-        } else {
-          /* istanbul ignore next */
-          // in prod environment
-          const userEmail = JSON.parse(localStorage.getItem("user")).email;
-          selectCondition =
-            bill.status === status &&
-            ![...USERS_TEST, userEmail].includes(bill.email);
-        }
+      // in jest environment
+      if (typeof jest !== "undefined") {
+        selectCondition = bill.status === status;
+        /* istanbul ignore next */
+      } else {
+        // in prod environment
+        const userEmail = JSON.parse(localStorage.getItem("user")).email;
+        selectCondition =
+          bill.status === status &&
+          ![...USERS_TEST, userEmail].includes(bill.email);
+      }
 
-        return selectCondition;
-      })
+      return selectCondition;
+    })
     : [];
 };
 
@@ -38,9 +37,8 @@ export const card = bill => {
     : firstAndLastNames;
 
   return `
-    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill${
-    bill.id
-  }'>
+    <div class='bill-card' id='open-bill${bill.id}' data-testid='open-bill${bill.id
+    }'>
       <div class='bill-card-name-container'>
         <div class='bill-card-name'> ${firstName} ${lastName} </div>
         <span class='bill-card-grey'> ... </span>
@@ -156,7 +154,7 @@ export default class {
     }
 
     bills.forEach(bill => {
-      $(`#open-bill${bill.id}`).off("click"); //TODO 4 - On remove l'eventListener existant avant d'en ajouter un
+      $(`#open-bill${bill.id}`).off("click");/*Fix bug 4*/
       $(`#open-bill${bill.id}`).on("click", e => {
         this.handleEditTicket(e, bill, bills);
       });
