@@ -8,11 +8,11 @@ const row = (bill) => {
 	const billDate = bill.formatedDate ?? bill.date;
 	return `
     <tr data-testid="bill">
-      <td data-testid="type">${bill.type}</td>
-      <td data-testid="name">${bill.name}</td>
-      <td data-testid="date">${billDate}</td>
-      <td data-testid="amount">${bill.amount} €</td>
-      <td data-testid="status">${bill.status}</td>
+      <td>${bill.type}</td>
+      <td>${bill.name}</td>
+      <td>${billDate}</td>
+      <td>${bill.amount} €</td>
+      <td>${bill.status}</td>
       <td>
         ${Actions(bill.fileUrl)}
       </td>
